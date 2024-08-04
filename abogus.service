@@ -1,0 +1,11 @@
+[Unit]
+Description=abogus
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/uwsgi --ini /var/pysrc/dyabogus/dyabogus.ini
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
