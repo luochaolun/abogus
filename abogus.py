@@ -20,8 +20,8 @@ from flask import Flask, request
 import random, json
 import time
 from typing import Union, Callable, List, Dict
-
 from gmssl import sm3, func
+from fanqie import Fanqie
 
 app=Flask(__name__)
 
@@ -811,5 +811,22 @@ def getVideoUrlByVid(aweme_id):
     ret = getABogus(params, request)
     return ret[0]
 
+@app.route('/getFqContent', methods=['GET'])
+def getFqContent():
+    aid = request.args.get('aid')
+    #aid = request.form.get('aid')
+    if aid is None or aid=="":
+        retStr = json.dumps({'ok': 0, 'reader': ''})
+    else:
+        retStr = json.dumps({'ok': 1, 'reader': Fanqie().down_text(aid)})
+
+    resp = app.response_class(
+        response=retStr,
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
+
 if __name__=="__main__":
+    #print(Fanqie().down_text('7399955763109577278'))
     app.run(port='8288', host='0.0.0.0')
