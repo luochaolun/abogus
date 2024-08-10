@@ -2,6 +2,9 @@ curl -X POST -d "vid=7390586049732431156" http://127.0.0.1:8288/
 
 cd /var/pysrc/dyabogus
 
+pip3 install uwsgi
+ln -s /usr/local/python3.11.9/bin/uwsgi /usr/bin/uwsgi
+ln -s /usr/local/python3.11.9/bin/uwsgi /usr/local/bin/uwsgi
 uwsgi --http :8288 --wsgi-file abogus.py --callable app
 
 vi /var/pysrc/dyabogus/dyabogus.ini
