@@ -31,7 +31,11 @@ class Mytts:
         voice = "zh-CN-XiaoxiaoNeural"
         communicate = edge_tts.Communicate(txt, voice)
         #communicate.save_sync(savepath)
-        await communicate.save(savepath)
+        #await communicate.save(savepath)
+        with open(savepath, "wb") as file:
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    file.write(chunk["data"])
         return fnam
 
     def getmp3(self, text, aid=""):
