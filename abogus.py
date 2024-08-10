@@ -22,6 +22,7 @@ import time
 from typing import Union, Callable, List, Dict
 from gmssl import sm3, func
 from fanqie import Fanqie
+from mytts import Mytts
 
 app=Flask(__name__)
 
@@ -819,6 +820,25 @@ def getFqContent():
         retStr = json.dumps({'ok': 0, 'reader': ''})
     else:
         retStr = json.dumps({'ok': 1, 'reader': Fanqie().down_text(aid)})
+
+    resp = app.response_class(
+        response=retStr,
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
+
+@app.route('/makeMp3', methods=['POST'])
+def makeMp3():
+    #aid = request.args.get('aid')
+    aid = request.form.get('aid')
+    txt = request.form.get('txt')
+    if aid is None:
+        aid = ""
+    if txt is None or txt=="":
+        retStr = json.dumps({'ok': 0, 'reader': ''})
+    else:
+        retStr = json.dumps({'ok': 1, 'reader': Mytts().getmp3(txt, aid)})
 
     resp = app.response_class(
         response=retStr,

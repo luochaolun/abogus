@@ -1,5 +1,5 @@
 import requests as req
-import os, re, json, edge_tts, asyncio
+import json
 
 class Fanqie:
     def __init__(self):
@@ -384,21 +384,6 @@ class Fanqie:
     'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE',
     'cookie':'novel_web_id=7357767624615331362',
 }
-    def remove_html_tags(self, text):
-        """去除字符串中的所有HTML标签"""
-        return re.sub(r'<.*?>', '', text)
-
-    async def makemp3(self, aid, text):
-        """Main function"""
-        fnam = "/var/www/html/defaultwww/fq/mp3/" + str(aid) + ".mp3"
-        if os.path.exists(fnam):
-            return
-        txt = self.remove_html_tags(text)
-        #print(txt)
-        voice = "zh-CN-XiaoxiaoNeural"
-        communicate = edge_tts.Communicate(txt, voice)
-        #communicate.save_sync(fnam)
-        await communicate.save(fnam)
 
     def interpreter(self, uni):
         bias = uni - self.CODE_ST
@@ -423,7 +408,6 @@ class Fanqie:
                 s += n[i]
         #s.replace('<\/p>','').replace('<p>', '').replace('</p>', '\n')
         html['chapterData']['content'] = s
-        asyncio.run(self.makemp3(aid, s))
         return html
 
 #print(Fanqie().down_text('7399955763109577278'))
