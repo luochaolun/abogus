@@ -18,7 +18,7 @@ Change Log  :
 """
 from flask import Flask, request
 import random, json
-import time
+import time, subprocess
 from typing import Union, Callable, List, Dict
 from gmssl import sm3, func
 from fanqie import Fanqie
@@ -846,6 +846,11 @@ def makeMp3():
         mimetype='application/json'
     )
     return resp
+
+@app.route('/reboot', methods=['GET'])
+def reboot():
+    subprocess.run(["sudo", "reboot"], check=True)
+    return "rebooting"
 
 if __name__=="__main__":
     #print(Fanqie().down_text('7399955763109577278'))

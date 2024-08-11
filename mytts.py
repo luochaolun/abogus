@@ -29,7 +29,7 @@ class Mytts:
         txt = self.remove_html_tags(text)
         #print(txt)
         voice = "zh-CN-XiaoxiaoNeural"
-        communicate = edge_tts.Communicate(txt, voice)
+        communicate = edge_tts.Communicate(text=txt, voice=voice, rate="+60%")
         #communicate.save_sync(savepath)
         #await communicate.save(savepath)
         with open(savepath, "wb") as file:
