@@ -23,6 +23,7 @@ from typing import Union, Callable, List, Dict
 from gmssl import sm3, func
 from fanqie import Fanqie
 from mytts import Mytts
+from qimao import getQmArticleCont
 
 app=Flask(__name__)
 
@@ -839,6 +840,26 @@ def makeMp3():
         retStr = json.dumps({'ok': 0, 'reader': ''})
     else:
         retStr = json.dumps({'ok': 1, 'reader': Mytts().getmp3(txt, aid)})
+
+    resp = app.response_class(
+        response=retStr,
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
+
+@app.route('/getQmArtCont', methods=['POST'])
+def getQmArtCont():
+    bid = request.form.get('bid')
+    aid = request.form.get('aid')
+    if bid is None:
+        bid = ""
+    if aid is None:
+        aid = ""
+    if bid=="" or aid=="":
+        retStr = json.dumps({'ok': 0, 'reader': ''})
+    else:
+        retStr = json.dumps({'ok': 1, 'reader': getQmArticleCont(bid, aid)})
 
     resp = app.response_class(
         response=retStr,
