@@ -1,5 +1,5 @@
 import requests as req
-import json
+import json, re
 
 class Fanqie:
     def __init__(self):
@@ -393,7 +393,61 @@ class Fanqie:
 
     def down_text(self, aid):
         while True:
-            res = req.get('https://fanqienovel.com/api/reader/full?itemId='+str(aid), headers=self.headers)
+            url = "https://fanqienovel.com/reader/" + str(aid) + "?enter_from=reader"
+
+            payload={}
+            headers = {
+               'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+               'Cookie': 'novel_web_id=7361200287870305855; _ga=GA1.1.2057731216.1727915678; _ga_S37NWVC3ZR=GS1.1.1727915677.1.0.1727915679.0.0.0; s_v_web_id=verify_m1uuznui_Nq5kzdrX_8fRS_4W1O_AuO1_5UckIoepJ0pE; Hm_lvt_2667d29c8e792e6fa9182c20a3013175=1727844305,1728054429,1728095817; Hm_lpvt_2667d29c8e792e6fa9182c20a3013175=1728095817; HMACCOUNT=37A31AF916A3FDC8; csrf_session_id=5d95f931c8ceec853334d714c4430445; ttwid=1%7CwYvLKAfld1in-mfZPnQJPA8YI0A504VxspuCgK1oeQE%7C1728095818%7C4d2b156bdcd74f669968000576d52585f5eecd096e27b737eff11b0466b09f16',
+            }
+
+            response = req.request("GET", url, headers=headers, data=payload)
+
+            #print(response.text)
+
+            #r = re.findall(r'"content":"(.*?)","uid":"', response.text, re.S)
+            r = re.findall(r'window.__INITIAL_STATE__=(.*?);\s+}\s+\)\(\).*?</script>', response.text, re.S)
+            if r:
+                print("findall:", r[0])
+                break
+            else:
+                print('未发现')
+            
+            #res = req.get('https://fanqienovel.com/api/reader/full?itemId='+str(aid), headers=self.headers)
+            #res = req.get('https://fanqienovel.com/reader/'+str(aid), headers=self.headers)
+            html = json.loads(r[0])
+            print(html)
+            '''
+            html = json.loads(res.text)['data']
+            if 'chapterData' in html:
+                break
+            '''
+            time.sleep(0.5)
+        #n = html['chapterData']['content']
+        n = r[0]
+        s = ''
+        for i in range(len(n)):
+            uni = ord(n[i])
+            if self.CODE_ST <= uni <= self.CODE_ED:
+                s += self.interpreter(uni)
+            else:
+                s += n[i]
+        #s.replace('<\/p>','').replace('<p>', '').replace('</p>', '\n')
+        #print(s)
+        html['chapterData']['content'] = s
+        return html
+
+    def down_text_by_url(self, url):
+        while True:
+            #res = req.get(url, headers=self.headers)
+            payload={}
+            headers = {
+               'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+               'Cookie': 'novel_web_id=7361200287870305855'
+            }
+            res = req.request("GET", url, headers=headers, data=payload)
+            #print(response.text)
+            #res = req.get('https://fanqienovel.com/reader/'+str(aid), headers=self.headers)
             html = json.loads(res.text)['data']
             if 'chapterData' in html:
                 break

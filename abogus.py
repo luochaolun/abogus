@@ -17,7 +17,7 @@ Change Log  :
 -------------------------------------------------
 """
 from flask import Flask, request
-import random, json
+import random, string, json
 import time, subprocess
 from typing import Union, Callable, List, Dict
 from gmssl import sm3, func
@@ -813,6 +813,10 @@ def getVideoUrlByVid(aweme_id):
     ret = getABogus(params, request)
     return ret[0]
 
+def getMsToken():
+    v = ''.join(random.sample(string.ascii_letters + string.digits, 50)) + ''.join(random.sample(string.ascii_letters + string.digits, 50)) + ''.join(random.sample(string.ascii_letters + string.digits, 30))
+    return v
+
 @app.route('/getFqContent', methods=['GET'])
 def getFqContent():
     aid = request.args.get('aid')
@@ -820,7 +824,13 @@ def getFqContent():
     if aid is None or aid=="":
         retStr = json.dumps({'ok': 0, 'reader': ''})
     else:
-        retStr = json.dumps({'ok': 1, 'reader': Fanqie().down_text(aid)})
+        #retStr = json.dumps({'ok': 1, 'reader': Fanqie().down_text(aid)})
+        msToken = getMsToken()
+        params = "itemId=" + aid + "&msToken=" + msToken
+        ret = getABogus(params, "GET")
+        tmpBogus = ret[1][:44]
+        fqUrl = "https://fanqienovel.com/api/reader/full?itemId=%s&msToken=%s&a_bogus=%s" % (aid, msToken, tmpBogus)
+        retStr = json.dumps({'ok': 1, 'reader': Fanqie().down_text_by_url(fqUrl)})
 
     resp = app.response_class(
         response=retStr,
