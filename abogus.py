@@ -24,6 +24,7 @@ from gmssl import sm3, func
 from fanqie import Fanqie
 from mytts import Mytts
 from qimao import getQmArticleCont
+from createpdf import GridPDFCreator
 
 app=Flask(__name__)
 
@@ -882,6 +883,34 @@ def getQmArtCont():
 def reboot():
     subprocess.run(["sudo", "reboot"], check=True)
     return "rebooting"
+
+@app.route('/makeTzg', methods=['POST'])
+def makeTzg():
+    # 指定要写入的文字
+    #text = '年 村这是一个示例文本，用于展示如何将文字拆分成单个字符。'  # 重复文本以生成多页
+
+    # 创建PDF文件
+    #create_grid_pdf('田字格.pdf', text)
+    text = request.form.get('txt')
+    #print(text)
+    if text is None:
+        text = ""
+    if text=="":
+        retStr = json.dumps({'ok': 0, 'msg': ''})
+    else:
+        entries = [
+            ['今日听写出错的字', text]
+        ]
+        pdf_creator = GridPDFCreator(entries)
+        filename = pdf_creator.create_pdf()
+        retStr = json.dumps({'ok': 1, 'msg': filename})
+
+    resp = app.response_class(
+        response=retStr,
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
 
 if __name__=="__main__":
     #print(Fanqie().down_text('7399955763109577278'))

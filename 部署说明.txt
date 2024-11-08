@@ -48,3 +48,5 @@ git config --global https.proxy https://127.0.0.1:10809
 git取消代理
 git config --global --unset http.proxy
 git config --global --unset https.proxy
+
+curl --location --request POST 'http://localhost:8288/makeTzg?=' --header 'User-Agent: Apifox/1.0.0 (https://apifox.com)' --header 'Accept: */*' --header 'Host: localhost:8288' --header 'Connection: keep-alive' --header 'Content-Type: multipart/form-data; boundary=--------------------------287148448463930945110526' --form 'txt="我们都是中国人"'
