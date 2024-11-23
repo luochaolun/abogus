@@ -25,6 +25,9 @@ from fanqie import Fanqie
 from mytts import Mytts
 from qimao import getQmArticleCont
 from createpdf import GridPDFCreator
+from imgs2pdf import ImageToPDFConverter
+from a3pdf2a4 import PDFSplitter
+from pdfextractor import PdfExtractor
 
 app=Flask(__name__)
 
@@ -904,6 +907,82 @@ def makeTzg():
         pdf_creator = GridPDFCreator(entries)
         filename = pdf_creator.create_pdf()
         retStr = json.dumps({'ok': 1, 'msg': filename})
+
+    resp = app.response_class(
+        response=retStr,
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
+
+@app.route('/imgsToPdf', methods=['POST'])
+def imgsToPdf():
+    fnam = request.form.get('fnam')
+    #print(fnam)
+    if fnam is None:
+        fnam = ""
+    if fnam=="":
+        retStr = json.dumps({'ok': 0, 'msg': ''})
+    else:
+        image_folder = '/var/www/html/defaultwww/tzg/upimgs'  # 替换为你的图片文件夹路径
+        filepath = '/var/www/html/defaultwww/tzg/pdfs/' + fnam  # 输出的PDF文件名
+        
+        converter = ImageToPDFConverter(image_folder, filepath)
+        converter.create_pdf()
+        converter.delete_images()
+
+        retStr = json.dumps({'ok': 1, 'msg': fnam})
+
+    resp = app.response_class(
+        response=retStr,
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
+
+@app.route('/a3pdf2a4', methods=['POST'])
+def a3pdf2a4():
+    fnam = request.form.get('fnam')
+    #print(fnam)
+    if fnam is None:
+        fnam = ""
+    if fnam=="":
+        retStr = json.dumps({'ok': 0, 'msg': ''})
+    else:
+        pdfa3 = '/var/www/html/defaultwww/tzg/uppdfs/' + fnam  # 替换为你的a3pdf文件夹路径
+        pdfa4 = '/var/www/html/defaultwww/tzg/pdfs/' + fnam  # 输出的PDF文件名
+        
+        splitter = PDFSplitter(pdfa3, pdfa4)
+        splitter.split_a3_to_a4()
+
+        retStr = json.dumps({'ok': 1, 'msg': fnam})
+
+    resp = app.response_class(
+        response=retStr,
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
+
+@app.route('/jiequpdf', methods=['POST'])
+def jiequpdf():
+    fnam = request.form.get('fnam')
+    start_page = request.form.get('startpage') # 开始页码
+    end_page = request.form.get('endpage') # 结束页码
+    #print(fnam)
+    if fnam is None:
+        fnam = ""
+    if fnam=="":
+        retStr = json.dumps({'ok': 0, 'msg': ''})
+    else:
+        input_pdf_path = '/var/www/html/defaultwww/tzg/uppdfs/' + fnam  # 输入PDF文件路径
+        save_directory = '/var/www/html/defaultwww/tzg/pdfs' # 保存提取页面的目录
+
+        extractor = PdfExtractor(input_pdf_path, save_directory)
+        output_pdf_fnam = extractor.extract_pages(int(start_page), int(end_page))
+        #print(f'已创建新PDF文件：{output_pdf_fnam}')
+
+        retStr = json.dumps({'ok': 1, 'msg': output_pdf_fnam})
 
     resp = app.response_class(
         response=retStr,
