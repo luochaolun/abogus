@@ -28,6 +28,8 @@ from createpdf import GridPDFCreator
 from imgs2pdf import ImageToPDFConverter
 from a3pdf2a4 import PDFSplitter
 from pdfextractor import PdfExtractor
+from pdf2imgs import PdfToImagesConverter
+from iqiyi import iqiyi
 
 app=Flask(__name__)
 
@@ -983,6 +985,53 @@ def jiequpdf():
         #print(f'已创建新PDF文件：{output_pdf_fnam}')
 
         retStr = json.dumps({'ok': 1, 'msg': output_pdf_fnam})
+
+    resp = app.response_class(
+        response=retStr,
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
+
+@app.route('/pdf2imgs', methods=['POST'])
+def pdf2imgs():
+    fnam = request.form.get('fnam')
+    start_page = request.form.get('startpage') # 图片旋转度数
+    #print(fnam)
+    if fnam is None:
+        fnam = ""
+    if fnam=="":
+        retStr = json.dumps({'ok': 0, 'msg': ''})
+    else:
+        input_pdf_path = '/var/www/html/defaultwww/tzg/uppdfs/' + fnam  # 输入PDF文件路径
+        save_directory = '/var/www/html/defaultwww/tzg/pdfs' # 保存提取页面的目录
+
+        converter = PdfToImagesConverter(input_pdf_path, save_directory)
+        zip_filename = converter.convert_pdf_to_images(int(start_page))
+        print(f'The generated ZIP file name is: {zip_filename}')
+
+        retStr = json.dumps({'ok': 1, 'msg': zip_filename})
+
+    resp = app.response_class(
+        response=retStr,
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
+
+@app.route('/jxiqy', methods=['POST'])
+def jxiqy():
+    iqyurl = request.form.get('iqyurl')
+    #print(iqyurl)
+    if iqyurl is None:
+        iqyurl = ""
+    if iqyurl=="":
+        retStr = json.dumps({'ok': 0, 'msg': ''})
+    else:
+        save_directory = '/var/www/html/defaultwww/aqy/m3u8s' # 保存提取页面的目录
+        fname = iqiyi(iqyurl).start(save_directory)
+
+        retStr = json.dumps({'ok': 1, 'msg': fname})
 
     resp = app.response_class(
         response=retStr,
